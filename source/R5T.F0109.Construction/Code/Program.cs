@@ -7,7 +7,8 @@ namespace R5T.F0109.Construction
     {
         static void Main()
         {
-            Console.WriteLine("Hello World!");
+            Operations.Instance.GetAssemblyInstances();
+            //Operations.Instance.DeserializationOfAssemblyInstancesDescriptor();
         }
     }
 }
