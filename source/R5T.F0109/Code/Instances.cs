@@ -7,6 +7,7 @@ namespace R5T.F0109
     {
         public static IAssemblyInstancesDescriptorOperator AssemblyInstancesDescriptorOperator => F0109.AssemblyInstancesDescriptorOperator.Instance;
         public static F0000.IDictionaryOperator DictionaryOperator => F0000.DictionaryOperator.Instance;
+        public static F0018.IFieldOperator FieldOperator => F0018.FieldOperator.Instance;
         public static F0017.F002.IIdentityNameProvider IdentityNameProvider => F0017.F002.IdentityNameProvider.Instance;
         public static IInstanceTypeDescriptorOperator InstanceTypeDescriptorOperator => F0109.InstanceTypeDescriptorOperator.Instance;
         public static F0032.IJsonOperator JsonOperator => F0032.JsonOperator.Instance;

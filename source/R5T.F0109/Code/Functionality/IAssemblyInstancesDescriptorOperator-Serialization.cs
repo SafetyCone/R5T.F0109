@@ -2,8 +2,8 @@ using System;
 using System.Linq;
 
 using R5T.T0132;
-using R5T.T0160;
 using R5T.T0170.Extensions;
+using R5T.T0181;
 
 using R5T.F0109.Extensions;
 
@@ -16,16 +16,16 @@ namespace R5T.F0109
     public partial interface IAssemblyInstancesDescriptorOperator : IFunctionalityMarker
     {
         public DeserializedType Deserialize_Synchronous(
-            JsonFilePath jsonFilePath)
+            IJsonFilePath jsonFilePath)
         {
-            var output = Instances.JsonOperator.Deserialize_Synchronous<SerializedType>(jsonFilePath)
+            var output = Instances.JsonOperator.Deserialize_Synchronous<SerializedType>(jsonFilePath.Value)
                 .ToDeserializedType();
 
             return output;
         }
 
         public void Serialize_Synchronous(
-            JsonFilePath jsonFilePath,
+            IJsonFilePath jsonFilePath,
             DeserializedType instances)
         {
             var serializable = instances.ToSerializedType();

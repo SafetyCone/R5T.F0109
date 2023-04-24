@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.CompilerServices;
+
 using R5T.F0018.Extensions;
 using R5T.F0099.T000;
 using R5T.T0132;
@@ -135,7 +135,34 @@ namespace R5T.F0109
                                 var isObsolete = typeIsObsolete || propertyIsObsolete;
 
                                 var identityName = Instances.IdentityNameProvider.GetIdentityName(propertyInfo);
-                                var kindMarkedFullMemberName = identityName; // TODO Instances.ParameterNamedIdentityNameProvider.GetParameterNamedIdentityName(methodInfo);
+                                var kindMarkedFullMemberName = Instances.ParameterNamedIdentityNameProvider.GetParameterNamedIdentityName(propertyInfo);
+
+                                // Need to return an array for the purposes of standardization across all instance varieties (which for some, like methods, there might be multiple per type).
+                                var output = (identityName.ToIdentityName(), kindMarkedFullMemberName.ToKindMarkedFullMemberName(), isObsolete);
+                                return output;
+                            })
+                            .ToArray();
+
+                        return output;
+                    }
+                },
+                {
+                    InstanceVarietyTarget.StaticReadOnlyObjects,
+                    typeInfo =>
+                    {
+                        var typeIsObsolete = Instances.TypeOperator.IsObsolete(typeInfo);
+
+                        var output = Instances.ReflectionOperator.Get_Fields_StaticReadonly_Object(typeInfo)
+                            .Select(fieldInfo =>
+                            {
+                                var propertyIsObsolete = Instances.FieldOperator.IsObsolete(fieldInfo);
+
+                                var isObsolete = typeIsObsolete || propertyIsObsolete;
+
+                                var identityName = Instances.IdentityNameProvider.GetIdentityName(fieldInfo);
+                                // Because we have only selected objects, all instances will be of type System.Object.
+                                // Thus, we do not need any field type information.
+                                var kindMarkedFullMemberName = identityName;
 
                                 // Need to return an array for the purposes of standardization across all instance varieties (which for some, like methods, there might be multiple per type).
                                 var output = (identityName.ToIdentityName(), kindMarkedFullMemberName.ToKindMarkedFullMemberName(), isObsolete);

@@ -3,9 +3,9 @@ using System.Linq;
 
 using R5T.F0109.Extensions;
 using R5T.T0132;
-using R5T.T0160;
 using R5T.T0161.Extensions;
 using R5T.T0172.Extensions;
+using R5T.T0181;
 
 using DeserializedType = R5T.F0109.InstanceTypeDescriptor;
 using SerializedType = R5T.F0109.Serialization.InstanceTypeDescriptor;
@@ -15,7 +15,7 @@ namespace R5T.F0109
 {
     public partial interface IInstanceTypeDescriptorOperator : IFunctionalityMarker
     {
-        public DeserializedType[] Deserialize_Synchronous(JsonFilePath jsonFilePath)
+        public DeserializedType[] Deserialize_Synchronous(IJsonFilePath jsonFilePath)
         {
             var output = Instances.JsonOperator.Deserialize_Synchronous<SerializedType[]>(jsonFilePath.Value)
                 .Select(x => x.ToDeserializedType())
@@ -25,7 +25,7 @@ namespace R5T.F0109
         }
 
         public void Serialize_Synchronous(
-            JsonFilePath jsonFilePath,
+            IJsonFilePath jsonFilePath,
             DeserializedType[] instances)
         {
             var serializable = instances
