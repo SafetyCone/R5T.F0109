@@ -4,7 +4,7 @@ using R5T.T0132;
 using R5T.T0172.Extensions;
 
 using R5T.F0109.Serialization;
-
+using R5T.F0109.Extensions;
 
 namespace R5T.F0109.Construction
 {

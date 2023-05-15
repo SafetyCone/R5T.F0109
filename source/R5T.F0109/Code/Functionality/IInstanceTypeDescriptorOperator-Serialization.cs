@@ -43,7 +43,7 @@ namespace R5T.F0109
             {
                 ProjectFilePath = deserializedType.ProjectFilePath.Value,
                 IsObsolete = deserializedType.IsObsolete,
-                TypeName = deserializedType.TypeName,
+                TypeName = deserializedType.TypeName.Value,
             };
 
             return output;

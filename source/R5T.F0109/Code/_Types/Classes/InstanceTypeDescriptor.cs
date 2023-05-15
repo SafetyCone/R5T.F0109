@@ -11,7 +11,7 @@ namespace R5T.F0109
     public class InstanceTypeDescriptor
     {
         public IProjectFilePath ProjectFilePath { get; set; }
-        public KindMarkedFullMemberName TypeName { get; set; }
+        public IKindMarkedFullMemberName TypeName { get; set; }
         public bool IsObsolete { get; set; }
     }
 }

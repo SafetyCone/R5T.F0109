@@ -21,162 +21,121 @@ namespace R5T.F0109
     [FunctionalityMarker]
     public partial interface IOperations : IFunctionalityMarker
     {
-        public AssemblyInstancesDescriptor Get_InstanceDescriptors(
-            IProjectFilePath projectFilePath,
-            Assembly assembly,
-            DocumentationByMemberIdentityName documentationByMemberIdentityName,
-            IDictionary<InstanceVarietyName, InstanceVarietyDescriptor> instanceVarietyDescriptorsByName)
+        /// <summary>
+        /// Special method required to check the "is-X" value (if the value present) for marker attribute constructors.
+        /// </summary>
+        public bool Has_AttributeOfTypeWithNonFalseConstructorValue(
+            TypeInfo typeInfo,
+            InstanceVarietyDescriptor instanceVarietyDescriptor)
         {
-            // Build type-is-of-interest predicate functions for each instance variety.
-            var typeIsOfInterestPredicatesByInstanceVarietyName = new Dictionary<InstanceVarietyName, Func<TypeInfo, bool>>();
+            var hasAttributeOfType = Instances.TypeOperator.HasAttributeOfType(
+                typeInfo,
+                instanceVarietyDescriptor.MarkerAttributeTypeName.Value);
+
+            // All marker attributes have a parameter to indicated that even though they are applied to a type, the type they are applied to is NOT to be included.
+            if (hasAttributeOfType.Result?.ConstructorArguments.Any() ?? false)
+            {
+                // The first contructor argument is always used, it might be named or not, and this handles named arguments.
+                var constructorArgument = hasAttributeOfType.Result.ConstructorArguments.FirstOrDefault();
+
+                // The value is always an "is X", so if false, we don't include the type.
+                var isMarked = Convert.ToBoolean(constructorArgument.Value);
+                if (!isMarked)
+                {
+                    return false;
+                }
+            }
+
+            var output = true
+               // Does the type have the attribute?
+               && hasAttributeOfType
+               ;
+
+            return output;
+        }
+
+        public Dictionary<IInstanceVarietyName, Func<TypeInfo, bool>> Get_TypeIsOfInterestPredicates(
+            IDictionary<IInstanceVarietyName, InstanceVarietyDescriptor> instanceVarietyDescriptorsByName)
+        {
+            var typeIsOfInterestPredicatesByInstanceVarietyName = new Dictionary<IInstanceVarietyName, Func<TypeInfo, bool>>();
 
             foreach (var instanceVarietyDescriptor in instanceVarietyDescriptorsByName.Values)
             {
-                //Func<TypeInfo, bool> predicate = Instances.TypeOperator.GetTypeByHasAttributeOfNamespacedTypeNamePredicate(
-                //    instanceVarietyDescriptor.MarkerAttributeTypeName);
-
-                /// Special method required to check the "is-X" value (if the value present) for marker attribute constructors.
-                bool HasAttributeOfTypeWithNonFalseConstructorValue(TypeInfo typeInfo)
-                {
-                    var hasAttributeOfType = Instances.TypeOperator.HasAttributeOfType(
+                bool predicate(TypeInfo typeInfo) => this.Has_AttributeOfTypeWithNonFalseConstructorValue(
                         typeInfo,
-                        instanceVarietyDescriptor.MarkerAttributeTypeName);
-
-                    // All marker attributes have a parameter to indicated that even though they are applied to a type, the type they are applied to is NOT to be included.
-                    if(hasAttributeOfType.Result?.ConstructorArguments.Any() ?? false)
-                    {
-                        var attributeData = typeInfo.GetCustomAttributesData();
-
-                        // The first contructor argument is always used, it might be named or not, and this handles named arguments.
-                        var constructorArgument = hasAttributeOfType.Result.ConstructorArguments.FirstOrDefault();
-
-                        // The value is always an "is X", so if false, we don't include the type.
-                        var isMarked = Convert.ToBoolean(constructorArgument.Value);
-                        if(!isMarked)
-                        {
-                            return false;
-                        }
-                    }
-
-                    var output = true
-                       // Does the type have the attribute?
-                       && hasAttributeOfType
-                       ;
-
-                    return output;
-                }
-
-                Func<TypeInfo, bool> predicate = HasAttributeOfTypeWithNonFalseConstructorValue;
+                        instanceVarietyDescriptor);
 
                 typeIsOfInterestPredicatesByInstanceVarietyName.Add(
                     instanceVarietyDescriptor.Name,
                     predicate);
             }
 
+            return typeIsOfInterestPredicatesByInstanceVarietyName;
+        }
+
+        /// <summary>
+        /// Match variety targets (type, methods of type, etc.) to functions that will generate names for instances of each target.
+        /// </summary>
+        /// <returns></returns>
+        public Dictionary<InstanceVarietyTarget, Func<TypeInfo, (IdentityName, IKindMarkedFullMemberName, bool)[]>>
+            Get_InstanceNameGeneratorFunctions()
+        {
             // Build instance generator functions for each variety target.
-            var instanceNameGeneratorFunctionsByInstanceVarietyTarget = new Dictionary<InstanceVarietyTarget, Func<TypeInfo, (IdentityName, KindMarkedFullMemberName, bool)[]>>
+            var instanceNameGeneratorFunctionsByInstanceVarietyTarget = new Dictionary<InstanceVarietyTarget, Func<TypeInfo, (IdentityName, IKindMarkedFullMemberName, bool)[]>>
             {
                 {
-                    InstanceVarietyTarget.Type,
-                    typeInfo =>
-                    {
-                        var isObsolete = Instances.TypeOperator.IsObsolete(typeInfo);
-
-                        var identityName = Instances.IdentityNameProvider.GetIdentityName(typeInfo);
-                        var kindMarkedFullMemberName = Instances.ParameterNamedIdentityNameProvider.GetParameterNamedIdentityName(typeInfo);
-
-                        // Need to return an array for the purposes of standardization across all instance varieties (which for some, like methods, there might be multiple per type).
-                        var output = new[]
-                        {
-                            (identityName.ToIdentityName(), kindMarkedFullMemberName.ToKindMarkedFullMemberName(), isObsolete)
-                        };
-
-                        return output;
-                    }
+                    InstanceVarietyTarget.MethodsAsProperties,
+                    Instances.InstanceNameGenerators.For_MethodsAsProperties
                 },
                 {
                     InstanceVarietyTarget.MethodsOfType,
-                    typeInfo =>
-                    {
-                        var typeIsObsolete = Instances.TypeOperator.IsObsolete(typeInfo);
-
-                        var output = Instances.ReflectionOperator.Get_Methods(typeInfo)
-                            .Where(Instances.ReflectionOperator.IsFunctionMethod)
-                            .Select(methodInfo =>
-                            {
-                                var methodIsObsolete = Instances.MethodOperator.IsObsolete(methodInfo);
-
-                                var isObsolete = typeIsObsolete || methodIsObsolete;
-
-                                var identityName = Instances.IdentityNameProvider.GetIdentityName(methodInfo);
-                                var kindMarkedFullMemberName = Instances.ParameterNamedIdentityNameProvider.GetParameterNamedIdentityName(methodInfo);
-
-                                // Need to return an array for the purposes of standardization across all instance varieties (which for some, like methods, there might be multiple per type).
-                                var output = (identityName.ToIdentityName(), kindMarkedFullMemberName.ToKindMarkedFullMemberName(), isObsolete);
-                                return output;
-                            })
-                            .ToArray();
-
-                        return output;
-                    }
+                    Instances.InstanceNameGenerators.For_MethodsOfType
                 },
                 {
                     InstanceVarietyTarget.PropertiesOfType,
-                    typeInfo =>
-                    {
-                        var typeIsObsolete = Instances.TypeOperator.IsObsolete(typeInfo);
-
-                        var output = Instances.ReflectionOperator.Get_Properties(typeInfo)
-                            .Where(Instances.ReflectionOperator.IsValueProperty)
-                            .Select(propertyInfo =>
-                            {
-                                var propertyIsObsolete = Instances.PropertyOperator.IsObsolete(propertyInfo);
-
-                                var isObsolete = typeIsObsolete || propertyIsObsolete;
-
-                                var identityName = Instances.IdentityNameProvider.GetIdentityName(propertyInfo);
-                                var kindMarkedFullMemberName = Instances.ParameterNamedIdentityNameProvider.GetParameterNamedIdentityName(propertyInfo);
-
-                                // Need to return an array for the purposes of standardization across all instance varieties (which for some, like methods, there might be multiple per type).
-                                var output = (identityName.ToIdentityName(), kindMarkedFullMemberName.ToKindMarkedFullMemberName(), isObsolete);
-                                return output;
-                            })
-                            .ToArray();
-
-                        return output;
-                    }
+                    Instances.InstanceNameGenerators.For_PropertiesOfType
                 },
                 {
                     InstanceVarietyTarget.StaticReadOnlyObjects,
-                    typeInfo =>
-                    {
-                        var typeIsObsolete = Instances.TypeOperator.IsObsolete(typeInfo);
-
-                        var output = Instances.ReflectionOperator.Get_Fields_StaticReadonly_Object(typeInfo)
-                            .Select(fieldInfo =>
-                            {
-                                var propertyIsObsolete = Instances.FieldOperator.IsObsolete(fieldInfo);
-
-                                var isObsolete = typeIsObsolete || propertyIsObsolete;
-
-                                var identityName = Instances.IdentityNameProvider.GetIdentityName(fieldInfo);
-                                // Because we have only selected objects, all instances will be of type System.Object.
-                                // Thus, we do not need any field type information.
-                                var kindMarkedFullMemberName = identityName;
-
-                                // Need to return an array for the purposes of standardization across all instance varieties (which for some, like methods, there might be multiple per type).
-                                var output = (identityName.ToIdentityName(), kindMarkedFullMemberName.ToKindMarkedFullMemberName(), isObsolete);
-                                return output;
-                            })
-                            .ToArray();
-
-                        return output;
-                    }
+                    Instances.InstanceNameGenerators.For_StaticReadOnlyObjects
+                },
+                {
+                    InstanceVarietyTarget.Type,
+                    Instances.InstanceNameGenerators.For_Type
                 }
             };
 
+            return instanceNameGeneratorFunctionsByInstanceVarietyTarget;
+        }
+
+        public AssemblyInstancesDescriptor Get_InstanceDescriptors(
+            IProjectFilePath projectFilePath,
+            Assembly assembly,
+            DocumentationByMemberIdentityName documentationByMemberIdentityName,
+            IDictionary<IInstanceVarietyName, InstanceVarietyDescriptor> instanceVarietyDescriptorsByName)
+        {
+            var typeIsOfInterestPredicatesByInstanceVarietyName = this.Get_TypeIsOfInterestPredicates(instanceVarietyDescriptorsByName);
+            var instanceNameGeneratorFunctionsByInstanceVarietyTarget = this.Get_InstanceNameGeneratorFunctions();
+
+            return this.Get_InstanceDescriptors(
+                projectFilePath,
+                assembly,
+                documentationByMemberIdentityName,
+                instanceVarietyDescriptorsByName,
+                typeIsOfInterestPredicatesByInstanceVarietyName,
+                instanceNameGeneratorFunctionsByInstanceVarietyTarget);
+        }
+
+        public AssemblyInstancesDescriptor Get_InstanceDescriptors(
+            IProjectFilePath projectFilePath,
+            Assembly assembly,
+            DocumentationByMemberIdentityName documentationByMemberIdentityName,
+            IDictionary<IInstanceVarietyName, InstanceVarietyDescriptor> instanceVarietyDescriptorsByName,
+            IDictionary<IInstanceVarietyName, Func<TypeInfo, bool>> typeIsOfInterestPredicatesByInstanceVarietyName,
+            IDictionary<InstanceVarietyTarget, Func<TypeInfo, (IdentityName, IKindMarkedFullMemberName, bool)[]>> instanceNameGeneratorFunctionsByInstanceVarietyTarget)
+        {
             // Iterate over all types in the assembly.
-            var typesOfInterestByInstanceVarietyName = new Dictionary<InstanceVarietyName, List<TypeInfo>>();
+            var typesOfInterestByInstanceVarietyName = new Dictionary<IInstanceVarietyName, List<TypeInfo>>();
 
             assembly.Foreach_TypeInAssembly(typeInfo =>
             {
@@ -229,31 +188,34 @@ namespace R5T.F0109
 
                 var instanceVarietyDescriptor = instanceVarietyDescriptorsByName[instanceVarietyName];
 
-                var instanceVarietyTarget = instanceVarietyDescriptor.Target;
-
-                var instanceNameGeneratorFunction = instanceNameGeneratorFunctionsByInstanceVarietyTarget[instanceVarietyTarget];
+                var instanceVarietyTargets = instanceVarietyDescriptor.Targets;
 
                 foreach (var type in types)
                 {
-                    var names = instanceNameGeneratorFunction(type);
-
-                    foreach (var name in names)
+                    foreach (var instanceVarietyTarget in instanceVarietyTargets)
                     {
-                        var (identityName, kindMarkedFullMemberName, isObsolete) = name;
+                        var instanceNameGeneratorFunction = instanceNameGeneratorFunctionsByInstanceVarietyTarget[instanceVarietyTarget];
 
-                        var descriptionXml = documentationByMemberIdentityName.Value.GetValueOrDefault(identityName);
+                        var names = instanceNameGeneratorFunction(type);
 
-                        var instanceDescriptor = new InstanceDescriptor
+                        foreach (var name in names)
                         {
-                            InstanceVarietyName = instanceVarietyName,
-                            ProjectFilePath = projectFilePath,
-                            IdentityName = identityName,
-                            KindMarkedFullMemberName = kindMarkedFullMemberName,
-                            DescriptionXml = descriptionXml,
-                            IsObsolete = isObsolete,
-                        };
+                            var (identityName, kindMarkedFullMemberName, isObsolete) = name;
 
-                        instanceDescriptors.Add(instanceDescriptor);
+                            var descriptionXml = documentationByMemberIdentityName.Value.GetValueOrDefault(identityName);
+
+                            var instanceDescriptor = new InstanceDescriptor
+                            {
+                                InstanceVarietyName = instanceVarietyName,
+                                ProjectFilePath = projectFilePath,
+                                IdentityName = identityName,
+                                KindMarkedFullMemberName = kindMarkedFullMemberName,
+                                DescriptionXml = descriptionXml,
+                                IsObsolete = isObsolete,
+                            };
+
+                            instanceDescriptors.Add(instanceDescriptor);
+                        }
                     }
                 }
             }
