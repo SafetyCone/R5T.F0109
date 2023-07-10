@@ -19,7 +19,7 @@ namespace R5T.F0109
         /// <summary>
         /// Just use the method-specific code.
         /// </summary>
-        public (IdentityName, IKindMarkedFullMemberName, bool)[] For_MethodsAsProperties(TypeInfo typeInfo)
+        public (IIdentityName, IKindMarkedFullMemberName, bool)[] For_MethodsAsProperties(TypeInfo typeInfo)
         {
             var typeIsObsolete = Instances.TypeOperator.IsObsolete(typeInfo);
 
@@ -43,7 +43,7 @@ namespace R5T.F0109
             return output;
         }
 
-        public (IdentityName, IKindMarkedFullMemberName, bool)[] For_StaticReadOnlyObjects(TypeInfo typeInfo)
+        public (IIdentityName, IKindMarkedFullMemberName, bool)[] For_StaticReadOnlyObjects(TypeInfo typeInfo)
         {
             var typeIsObsolete = Instances.TypeOperator.IsObsolete(typeInfo);
 
@@ -68,7 +68,7 @@ namespace R5T.F0109
             return output;
         }
 
-        public (IdentityName, IKindMarkedFullMemberName, bool)[] For_PropertiesOfType(TypeInfo typeInfo)
+        public (IIdentityName, IKindMarkedFullMemberName, bool)[] For_PropertiesOfType(TypeInfo typeInfo)
         {
             var typeIsObsolete = Instances.TypeOperator.IsObsolete(typeInfo);
 
@@ -92,7 +92,7 @@ namespace R5T.F0109
             return output;
         }
 
-        public (IdentityName, IKindMarkedFullMemberName, bool)[] For_MethodsOfType(TypeInfo typeInfo)
+        public (IIdentityName, IKindMarkedFullMemberName, bool)[] For_MethodsOfType(TypeInfo typeInfo)
         {
             var typeIsObsolete = Instances.TypeOperator.IsObsolete(typeInfo);
 
@@ -125,7 +125,7 @@ namespace R5T.F0109
             return output;
         }
 
-        public (IdentityName, IKindMarkedFullMemberName, bool)[] For_Type(TypeInfo typeInfo)
+        public (IIdentityName, IKindMarkedFullMemberName, bool)[] For_Type(TypeInfo typeInfo)
         {
             var isObsolete = Instances.TypeOperator.IsObsolete(typeInfo);
 

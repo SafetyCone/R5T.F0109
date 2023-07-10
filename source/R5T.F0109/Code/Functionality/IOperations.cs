@@ -77,11 +77,11 @@ namespace R5T.F0109
         /// Match variety targets (type, methods of type, etc.) to functions that will generate names for instances of each target.
         /// </summary>
         /// <returns></returns>
-        public Dictionary<InstanceVarietyTarget, Func<TypeInfo, (IdentityName, IKindMarkedFullMemberName, bool)[]>>
+        public Dictionary<InstanceVarietyTarget, Func<TypeInfo, (IIdentityName, IKindMarkedFullMemberName, bool)[]>>
             Get_InstanceNameGeneratorFunctions()
         {
             // Build instance generator functions for each variety target.
-            var instanceNameGeneratorFunctionsByInstanceVarietyTarget = new Dictionary<InstanceVarietyTarget, Func<TypeInfo, (IdentityName, IKindMarkedFullMemberName, bool)[]>>
+            var instanceNameGeneratorFunctionsByInstanceVarietyTarget = new Dictionary<InstanceVarietyTarget, Func<TypeInfo, (IIdentityName, IKindMarkedFullMemberName, bool)[]>>
             {
                 {
                     InstanceVarietyTarget.MethodsAsProperties,
@@ -132,7 +132,7 @@ namespace R5T.F0109
             DocumentationByMemberIdentityName documentationByMemberIdentityName,
             IDictionary<IInstanceVarietyName, InstanceVarietyDescriptor> instanceVarietyDescriptorsByName,
             IDictionary<IInstanceVarietyName, Func<TypeInfo, bool>> typeIsOfInterestPredicatesByInstanceVarietyName,
-            IDictionary<InstanceVarietyTarget, Func<TypeInfo, (IdentityName, IKindMarkedFullMemberName, bool)[]>> instanceNameGeneratorFunctionsByInstanceVarietyTarget)
+            IDictionary<InstanceVarietyTarget, Func<TypeInfo, (IIdentityName, IKindMarkedFullMemberName, bool)[]>> instanceNameGeneratorFunctionsByInstanceVarietyTarget)
         {
             // Iterate over all types in the assembly.
             var typesOfInterestByInstanceVarietyName = new Dictionary<IInstanceVarietyName, List<TypeInfo>>();
