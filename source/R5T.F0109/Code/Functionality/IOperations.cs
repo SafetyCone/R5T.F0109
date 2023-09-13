@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-using R5T.F0018.Extensions;
 using R5T.F0099.T000;
+using R5T.L0053.Extensions;
 using R5T.T0132;
 using R5T.T0161;
 using R5T.T0161.Extensions;
@@ -137,7 +137,7 @@ namespace R5T.F0109
             // Iterate over all types in the assembly.
             var typesOfInterestByInstanceVarietyName = new Dictionary<IInstanceVarietyName, List<TypeInfo>>();
 
-            assembly.Foreach_TypeInAssembly(typeInfo =>
+            assembly.Foreach_Type(typeInfo =>
             {
                 foreach (var pair in typeIsOfInterestPredicatesByInstanceVarietyName)
                 {
