@@ -105,16 +105,16 @@ namespace R5T.F0109
                     var isObsolete = typeIsObsolete || methodIsObsolete;
 
                     var identityName = Instances.IdentityNameProvider.GetIdentityName(methodInfo);
-                    if (identityName == "M:R5T.F0000.IEnumerableOperator.Append``1(System.Collections.Generic.IEnumerable{``0},``0[])")
-                    {
-                        Console.WriteLine("For debugging.");
-                    }
+                    //if (identityName == "M:R5T.F0000.IEnumerableOperator.Append``1(System.Collections.Generic.IEnumerable{``0},``0[])")
+                    //{
+                    //    Console.WriteLine("For debugging.");
+                    //}
 
                     var kindMarkedFullMemberName = Instances.ParameterNamedIdentityNameProvider.GetParameterNamedIdentityName(methodInfo);
-                    if(kindMarkedFullMemberName == "M:R5T.F0000.IEnumerableOperator.Append<T>(System.Collections.Generic.IEnumerable<T> enumerable,  appendix);System.Collections.Generic.IEnumerable<T>")
-                    {
-                        Console.WriteLine("For debugging.");
-                    }
+                    //if(kindMarkedFullMemberName == "M:R5T.F0000.IEnumerableOperator.Append<T>(System.Collections.Generic.IEnumerable<T> enumerable,  appendix);System.Collections.Generic.IEnumerable<T>")
+                    //{
+                    //    Console.WriteLine("For debugging.");
+                    //}
 
                     // Need to return an array for the purposes of standardization across all instance varieties (which for some, like methods, there might be multiple per type).
                     var output = (identityName.ToIdentityName(), kindMarkedFullMemberName.ToKindMarkedFullMemberName(), isObsolete);
