@@ -9,6 +9,7 @@ namespace R5T.F0109
         public static F0000.IDictionaryOperator DictionaryOperator => F0000.DictionaryOperator.Instance;
         public static F0018.IFieldOperator FieldOperator => F0018.FieldOperator.Instance;
         public static F0017.F002.IIdentityNameProvider IdentityNameProvider => F0017.F002.IdentityNameProvider.Instance;
+        public static L0062.F001.IIdentityStringOperator IdentityStringOperator => L0062.F001.IdentityStringOperator.Instance;
         public static IInstanceNameGenerators InstanceNameGenerators => F0109.InstanceNameGenerators.Instance;
         public static IInstanceTypeDescriptorOperator InstanceTypeDescriptorOperator => F0109.InstanceTypeDescriptorOperator.Instance;
         public static F0032.IJsonOperator JsonOperator => F0032.JsonOperator.Instance;
@@ -17,6 +18,7 @@ namespace R5T.F0109
         public static F0018.IPropertyOperator PropertyOperator => F0018.PropertyOperator.Instance;
         public static IReflectionOperator ReflectionOperator => F0109.ReflectionOperator.Instance;
         public static F0018.IReflectionOperations ReflectionOperations => F0018.ReflectionOperations.Instance;
+        public static L0065.ISignatureOperator SignatureOperator => L0065.SignatureOperator.Instance;
         public static F0000.IStrings Strings => F0000.Strings.Instance;
         public static F0018.ITypeOperator TypeOperator => F0018.TypeOperator.Instance;
     }

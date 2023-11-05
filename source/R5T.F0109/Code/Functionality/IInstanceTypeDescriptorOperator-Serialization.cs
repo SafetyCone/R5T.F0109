@@ -2,8 +2,8 @@ using System;
 using System.Linq;
 
 using R5T.F0109.Extensions;
+using R5T.L0062.T000.Extensions;
 using R5T.T0132;
-using R5T.T0161.Extensions;
 using R5T.T0172.Extensions;
 using R5T.T0181;
 
@@ -43,7 +43,7 @@ namespace R5T.F0109
             {
                 ProjectFilePath = deserializedType.ProjectFilePath.Value,
                 IsObsolete = deserializedType.IsObsolete,
-                TypeName = deserializedType.TypeName.Value,
+                TypeName = deserializedType.TypeIdentityString.Value,
             };
 
             return output;
@@ -55,7 +55,7 @@ namespace R5T.F0109
             {
                 ProjectFilePath = serializedType.ProjectFilePath.ToProjectFilePath(),
                 IsObsolete = serializedType.IsObsolete,
-                TypeName = serializedType.TypeName.ToKindMarkedFullMemberName(),
+                TypeIdentityString = serializedType.TypeName.ToIdentityString(),
             };
 
             return output;

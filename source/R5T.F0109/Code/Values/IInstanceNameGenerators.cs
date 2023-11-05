@@ -1,14 +1,8 @@
 using System;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Reflection;
 
-using R5T.F0000.Extensions;
 using R5T.T0131;
-using R5T.T0161;
-using R5T.T0161.Extensions;
-using R5T.T0162;
-using R5T.T0162.Extensions;
 
 
 namespace R5T.F0109
@@ -19,7 +13,7 @@ namespace R5T.F0109
         /// <summary>
         /// Just use the method-specific code.
         /// </summary>
-        public (IIdentityName, IKindMarkedFullMemberName, bool)[] For_MethodsAsProperties(TypeInfo typeInfo)
+        public InstanceDescriptor[] For_MethodsAsProperties(TypeInfo typeInfo)
         {
             var typeIsObsolete = Instances.TypeOperator.IsObsolete(typeInfo);
 
@@ -31,11 +25,17 @@ namespace R5T.F0109
 
                     var isObsolete = typeIsObsolete || methodIsObsolete;
 
-                    var identityName = Instances.IdentityNameProvider.GetIdentityName(methodInfo);
-                    var kindMarkedFullMemberName = Instances.ParameterNamedIdentityNameProvider.GetParameterNamedIdentityName(methodInfo);
+                    var signature = Instances.SignatureOperator.Get_Signature(methodInfo);
 
-                    // Need to return an array for the purposes of standardization across all instance varieties (which for some, like methods, there might be multiple per type).
-                    var output = (identityName.ToIdentityName(), kindMarkedFullMemberName.ToKindMarkedFullMemberName(), isObsolete);
+                    var identityString = Instances.SignatureOperator.Get_IdentityString(signature);
+                    var signatureString = Instances.SignatureOperator.Get_SignatureString(signature);
+
+                    var output = new InstanceDescriptor
+                    {
+                        IsObsolete = isObsolete,
+                        IdentityString = identityString,
+                        SignatureString = signatureString,
+                    };
                     return output;
                 })
                 .ToArray();
@@ -43,7 +43,7 @@ namespace R5T.F0109
             return output;
         }
 
-        public (IIdentityName, IKindMarkedFullMemberName, bool)[] For_StaticReadOnlyObjects(TypeInfo typeInfo)
+        public InstanceDescriptor[] For_StaticReadOnlyObjects(TypeInfo typeInfo)
         {
             var typeIsObsolete = Instances.TypeOperator.IsObsolete(typeInfo);
 
@@ -54,13 +54,17 @@ namespace R5T.F0109
 
                     var isObsolete = typeIsObsolete || propertyIsObsolete;
 
-                    var identityName = Instances.IdentityNameProvider.GetIdentityName(fieldInfo);
-                    // Because we have only selected objects, all instances will be of type System.Object.
-                    // Thus, we do not need any field type information.
-                    var kindMarkedFullMemberName = identityName;
+                    var signature = Instances.SignatureOperator.Get_Signature(fieldInfo);
 
-                    // Need to return an array for the purposes of standardization across all instance varieties (which for some, like methods, there might be multiple per type).
-                    var output = (identityName.ToIdentityName(), kindMarkedFullMemberName.ToKindMarkedFullMemberName(), isObsolete);
+                    var identityString = Instances.SignatureOperator.Get_IdentityString(signature);
+                    var signatureString = Instances.SignatureOperator.Get_SignatureString(signature);
+
+                    var output = new InstanceDescriptor
+                    {
+                        IsObsolete = isObsolete,
+                        IdentityString = identityString,
+                        SignatureString = signatureString,
+                    };
                     return output;
                 })
                 .ToArray();
@@ -68,7 +72,7 @@ namespace R5T.F0109
             return output;
         }
 
-        public (IIdentityName, IKindMarkedFullMemberName, bool)[] For_PropertiesOfType(TypeInfo typeInfo)
+        public InstanceDescriptor[] For_PropertiesOfType(TypeInfo typeInfo)
         {
             var typeIsObsolete = Instances.TypeOperator.IsObsolete(typeInfo);
 
@@ -80,11 +84,17 @@ namespace R5T.F0109
 
                     var isObsolete = typeIsObsolete || propertyIsObsolete;
 
-                    var identityName = Instances.IdentityNameProvider.GetIdentityName(propertyInfo);
-                    var kindMarkedFullMemberName = Instances.ParameterNamedIdentityNameProvider.GetParameterNamedIdentityName(propertyInfo);
+                    var signature = Instances.SignatureOperator.Get_Signature(propertyInfo);
 
-                    // Need to return an array for the purposes of standardization across all instance varieties (which for some, like methods, there might be multiple per type).
-                    var output = (identityName.ToIdentityName(), kindMarkedFullMemberName.ToKindMarkedFullMemberName(), isObsolete);
+                    var identityString = Instances.SignatureOperator.Get_IdentityString(signature);
+                    var signatureString = Instances.SignatureOperator.Get_SignatureString(signature);
+
+                    var output = new InstanceDescriptor
+                    {
+                        IsObsolete = isObsolete,
+                        IdentityString = identityString,
+                        SignatureString = signatureString,
+                    };
                     return output;
                 })
                 .ToArray();
@@ -92,7 +102,7 @@ namespace R5T.F0109
             return output;
         }
 
-        public (IIdentityName, IKindMarkedFullMemberName, bool)[] For_MethodsOfType(TypeInfo typeInfo)
+        public InstanceDescriptor[] For_MethodsOfType(TypeInfo typeInfo)
         {
             var typeIsObsolete = Instances.TypeOperator.IsObsolete(typeInfo);
 
@@ -104,20 +114,17 @@ namespace R5T.F0109
 
                     var isObsolete = typeIsObsolete || methodIsObsolete;
 
-                    var identityName = Instances.IdentityNameProvider.GetIdentityName(methodInfo);
-                    //if (identityName == "M:R5T.F0000.IEnumerableOperator.Append``1(System.Collections.Generic.IEnumerable{``0},``0[])")
-                    //{
-                    //    Console.WriteLine("For debugging.");
-                    //}
+                    var signature = Instances.SignatureOperator.Get_Signature(methodInfo);
 
-                    var kindMarkedFullMemberName = Instances.ParameterNamedIdentityNameProvider.GetParameterNamedIdentityName(methodInfo);
-                    //if(kindMarkedFullMemberName == "M:R5T.F0000.IEnumerableOperator.Append<T>(System.Collections.Generic.IEnumerable<T> enumerable,  appendix);System.Collections.Generic.IEnumerable<T>")
-                    //{
-                    //    Console.WriteLine("For debugging.");
-                    //}
+                    var identityString = Instances.SignatureOperator.Get_IdentityString(signature);
+                    var signatureString = Instances.SignatureOperator.Get_SignatureString(signature);
 
-                    // Need to return an array for the purposes of standardization across all instance varieties (which for some, like methods, there might be multiple per type).
-                    var output = (identityName.ToIdentityName(), kindMarkedFullMemberName.ToKindMarkedFullMemberName(), isObsolete);
+                    var output = new InstanceDescriptor
+                    {
+                        IsObsolete = isObsolete,
+                        IdentityString = identityString,
+                        SignatureString = signatureString,
+                    };
                     return output;
                 })
                 .ToArray();
@@ -125,21 +132,24 @@ namespace R5T.F0109
             return output;
         }
 
-        public (IIdentityName, IKindMarkedFullMemberName, bool)[] For_Type(TypeInfo typeInfo)
+        public InstanceDescriptor[] For_Type(TypeInfo typeInfo)
         {
             var isObsolete = Instances.TypeOperator.IsObsolete(typeInfo);
 
-            var identityName = Instances.IdentityNameProvider.GetIdentityName(typeInfo);
-            var kindMarkedFullMemberName = Instances.ParameterNamedIdentityNameProvider.GetParameterNamedIdentityName(typeInfo);
+            var signature = Instances.SignatureOperator.Get_Signature(typeInfo);
+
+            var identityString = Instances.SignatureOperator.Get_IdentityString(signature);
+            var signatureString = Instances.SignatureOperator.Get_SignatureString(signature);
 
             // Need to return an array for the purposes of standardization across all instance varieties (which for some, like methods, there might be multiple per type).
             var output = new[]
             {
-                (
-                    identityName.ToIdentityName(),
-                    kindMarkedFullMemberName.ToKindMarkedFullMemberName(),
-                    isObsolete
-                )
+                new InstanceDescriptor
+                {
+                    IsObsolete = isObsolete,
+                    IdentityString = identityString,
+                    SignatureString = signatureString
+                }
             };
 
             return output;

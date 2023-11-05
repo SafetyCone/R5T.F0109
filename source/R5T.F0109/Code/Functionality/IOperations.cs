@@ -5,6 +5,7 @@ using System.Reflection;
 
 using R5T.F0099.T000;
 using R5T.L0053.Extensions;
+using R5T.L0062.T000.Extensions;
 using R5T.T0132;
 using R5T.T0161;
 using R5T.T0161.Extensions;
@@ -77,11 +78,11 @@ namespace R5T.F0109
         /// Match variety targets (type, methods of type, etc.) to functions that will generate names for instances of each target.
         /// </summary>
         /// <returns></returns>
-        public Dictionary<InstanceVarietyTarget, Func<TypeInfo, (IIdentityName, IKindMarkedFullMemberName, bool)[]>>
-            Get_InstanceNameGeneratorFunctions()
+        public Dictionary<InstanceVarietyTarget, Func<TypeInfo, InstanceDescriptor[]>>
+            Get_InstanceDescriptorGeneratorFunctions()
         {
             // Build instance generator functions for each variety target.
-            var instanceNameGeneratorFunctionsByInstanceVarietyTarget = new Dictionary<InstanceVarietyTarget, Func<TypeInfo, (IIdentityName, IKindMarkedFullMemberName, bool)[]>>
+            var instanceDescriptorGeneratorFunctionsByInstanceVarietyTarget = new Dictionary<InstanceVarietyTarget, Func<TypeInfo, InstanceDescriptor[]>>
             {
                 {
                     InstanceVarietyTarget.MethodsAsProperties,
@@ -105,7 +106,7 @@ namespace R5T.F0109
                 }
             };
 
-            return instanceNameGeneratorFunctionsByInstanceVarietyTarget;
+            return instanceDescriptorGeneratorFunctionsByInstanceVarietyTarget;
         }
 
         public AssemblyInstancesDescriptor Get_InstanceDescriptors(
@@ -115,7 +116,7 @@ namespace R5T.F0109
             IDictionary<IInstanceVarietyName, InstanceVarietyDescriptor> instanceVarietyDescriptorsByName)
         {
             var typeIsOfInterestPredicatesByInstanceVarietyName = this.Get_TypeIsOfInterestPredicates(instanceVarietyDescriptorsByName);
-            var instanceNameGeneratorFunctionsByInstanceVarietyTarget = this.Get_InstanceNameGeneratorFunctions();
+            var instanceDescriptorGeneratorFunctionsByInstanceVarietyTarget = this.Get_InstanceDescriptorGeneratorFunctions();
 
             return this.Get_InstanceDescriptors(
                 projectFilePath,
@@ -123,7 +124,7 @@ namespace R5T.F0109
                 documentationByMemberIdentityName,
                 instanceVarietyDescriptorsByName,
                 typeIsOfInterestPredicatesByInstanceVarietyName,
-                instanceNameGeneratorFunctionsByInstanceVarietyTarget);
+                instanceDescriptorGeneratorFunctionsByInstanceVarietyTarget);
         }
 
         public AssemblyInstancesDescriptor Get_InstanceDescriptors(
@@ -132,7 +133,7 @@ namespace R5T.F0109
             DocumentationByMemberIdentityName documentationByMemberIdentityName,
             IDictionary<IInstanceVarietyName, InstanceVarietyDescriptor> instanceVarietyDescriptorsByName,
             IDictionary<IInstanceVarietyName, Func<TypeInfo, bool>> typeIsOfInterestPredicatesByInstanceVarietyName,
-            IDictionary<InstanceVarietyTarget, Func<TypeInfo, (IIdentityName, IKindMarkedFullMemberName, bool)[]>> instanceNameGeneratorFunctionsByInstanceVarietyTarget)
+            IDictionary<InstanceVarietyTarget, Func<TypeInfo, InstanceDescriptor[]>> instanceDescriptorGeneratorFunctionsByInstanceVarietyTarget)
         {
             // Iterate over all types in the assembly.
             var typesOfInterestByInstanceVarietyName = new Dictionary<IInstanceVarietyName, List<TypeInfo>>();
@@ -146,7 +147,7 @@ namespace R5T.F0109
                     if(typeIsOfInterestToVariety)
                     {
                         // Add the type to the instances types list.
-                        Instances.DictionaryOperator.AddValue(
+                        Instances.DictionaryOperator.Add_Value(
                             typesOfInterestByInstanceVarietyName,
                             pair.Key,
                             typeInfo);
@@ -162,8 +163,7 @@ namespace R5T.F0109
             var instanceTypeKindMarkedFullMemberNames = instanceTypesInAssembly
                 .Select(typeInfo =>
                 {
-                    var kindMarkedFullMemberName = Instances.ParameterNamedIdentityNameProvider.GetParameterNamedIdentityName(typeInfo)
-                        .ToKindMarkedFullMemberName();
+                    var typeIdentityString = Instances.IdentityStringOperator.Get_IdentityString(typeInfo);
 
                     var isObsolete = Instances.TypeOperator.IsObsolete(typeInfo);
 
@@ -171,7 +171,7 @@ namespace R5T.F0109
                     {
                         ProjectFilePath = projectFilePath,
                         IsObsolete = isObsolete,
-                        TypeName = kindMarkedFullMemberName,
+                        TypeIdentityString = typeIdentityString,
                     };
 
                     return output;
@@ -179,7 +179,7 @@ namespace R5T.F0109
                 .Now();
 
             // Now iterate over all interesting types.
-            var instanceDescriptors = new List<InstanceDescriptor>();
+            var fullInstanceDescriptors = new List<T0170.InstanceDescriptor>();
 
             foreach (var pair in typesOfInterestByInstanceVarietyName)
             {
@@ -194,27 +194,27 @@ namespace R5T.F0109
                 {
                     foreach (var instanceVarietyTarget in instanceVarietyTargets)
                     {
-                        var instanceNameGeneratorFunction = instanceNameGeneratorFunctionsByInstanceVarietyTarget[instanceVarietyTarget];
+                        var instanceDescriptorGeneratorFunction = instanceDescriptorGeneratorFunctionsByInstanceVarietyTarget[instanceVarietyTarget];
 
-                        var names = instanceNameGeneratorFunction(type);
+                        var instanceDescriptors = instanceDescriptorGeneratorFunction(type);
 
-                        foreach (var name in names)
+                        foreach (var instanceDescriptor in instanceDescriptors)
                         {
-                            var (identityName, kindMarkedFullMemberName, isObsolete) = name;
+                            var identityName = instanceDescriptor.IdentityString.Value.ToIdentityName();
 
                             var descriptionXml = documentationByMemberIdentityName.Value.GetValueOrDefault(identityName);
 
-                            var instanceDescriptor = new InstanceDescriptor
+                            var fullInstanceDescriptor = new T0170.InstanceDescriptor
                             {
                                 InstanceVarietyName = instanceVarietyName,
                                 ProjectFilePath = projectFilePath,
-                                IdentityName = identityName,
-                                KindMarkedFullMemberName = kindMarkedFullMemberName,
+                                IdentityString = instanceDescriptor.IdentityString,
+                                SignatureString = instanceDescriptor.SignatureString,
                                 DescriptionXml = descriptionXml,
-                                IsObsolete = isObsolete,
+                                IsObsolete = instanceDescriptor.IsObsolete,
                             };
 
-                            instanceDescriptors.Add(instanceDescriptor);
+                            fullInstanceDescriptors.Add(fullInstanceDescriptor);
                         }
                     }
                 }
@@ -223,7 +223,7 @@ namespace R5T.F0109
             //Return the output.
             var output = new AssemblyInstancesDescriptor
             {
-                Instances = instanceDescriptors.ToArray(),
+                Instances = fullInstanceDescriptors.ToArray(),
                 InstanceTypes = instanceTypeKindMarkedFullMemberNames,
             };
 

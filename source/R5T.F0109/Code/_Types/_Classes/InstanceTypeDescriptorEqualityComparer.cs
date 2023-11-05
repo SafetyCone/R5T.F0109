@@ -16,7 +16,7 @@ namespace R5T.F0109
         public bool Equals(InstanceTypeDescriptor x, InstanceTypeDescriptor y)
         {
             var output = true
-                && x.TypeName.Equals(y.TypeName)
+                && x.TypeIdentityString.Equals(y.TypeIdentityString)
                 && x.IsObsolete.Equals(y.IsObsolete)
                 && x.ProjectFilePath.Equals(y.ProjectFilePath)
                 ;
@@ -28,7 +28,7 @@ namespace R5T.F0109
         {
             var hashCode = HashCode.Combine(
                 obj.ProjectFilePath,
-                obj.TypeName,
+                obj.TypeIdentityString,
                 obj.IsObsolete);
 
             return hashCode;
