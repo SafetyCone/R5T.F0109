@@ -55,10 +55,10 @@ namespace R5T.F0109
             return output;
         }
 
-        public Dictionary<IInstanceVarietyName, Func<TypeInfo, bool>> Get_TypeIsOfInterestPredicates(
-            IDictionary<IInstanceVarietyName, InstanceVarietyDescriptor> instanceVarietyDescriptorsByName)
+        public Dictionary<T0171.IInstanceVarietyName, Func<TypeInfo, bool>> Get_TypeIsOfInterestPredicates(
+            IDictionary<T0171.IInstanceVarietyName, InstanceVarietyDescriptor> instanceVarietyDescriptorsByName)
         {
-            var typeIsOfInterestPredicatesByInstanceVarietyName = new Dictionary<IInstanceVarietyName, Func<TypeInfo, bool>>();
+            var typeIsOfInterestPredicatesByInstanceVarietyName = new Dictionary<T0171.IInstanceVarietyName, Func<TypeInfo, bool>>();
 
             foreach (var instanceVarietyDescriptor in instanceVarietyDescriptorsByName.Values)
             {
@@ -113,7 +113,7 @@ namespace R5T.F0109
             IProjectFilePath projectFilePath,
             Assembly assembly,
             DocumentationByMemberIdentityName documentationByMemberIdentityName,
-            IDictionary<IInstanceVarietyName, InstanceVarietyDescriptor> instanceVarietyDescriptorsByName)
+            IDictionary<T0171.IInstanceVarietyName, InstanceVarietyDescriptor> instanceVarietyDescriptorsByName)
         {
             var typeIsOfInterestPredicatesByInstanceVarietyName = this.Get_TypeIsOfInterestPredicates(instanceVarietyDescriptorsByName);
             var instanceDescriptorGeneratorFunctionsByInstanceVarietyTarget = this.Get_InstanceDescriptorGeneratorFunctions();
@@ -131,12 +131,12 @@ namespace R5T.F0109
             IProjectFilePath projectFilePath,
             Assembly assembly,
             DocumentationByMemberIdentityName documentationByMemberIdentityName,
-            IDictionary<IInstanceVarietyName, InstanceVarietyDescriptor> instanceVarietyDescriptorsByName,
-            IDictionary<IInstanceVarietyName, Func<TypeInfo, bool>> typeIsOfInterestPredicatesByInstanceVarietyName,
+            IDictionary<T0171.IInstanceVarietyName, InstanceVarietyDescriptor> instanceVarietyDescriptorsByName,
+            IDictionary<T0171.IInstanceVarietyName, Func<TypeInfo, bool>> typeIsOfInterestPredicatesByInstanceVarietyName,
             IDictionary<InstanceVarietyTarget, Func<TypeInfo, InstanceDescriptor[]>> instanceDescriptorGeneratorFunctionsByInstanceVarietyTarget)
         {
             // Iterate over all types in the assembly.
-            var typesOfInterestByInstanceVarietyName = new Dictionary<IInstanceVarietyName, List<TypeInfo>>();
+            var typesOfInterestByInstanceVarietyName = new Dictionary<T0171.IInstanceVarietyName, List<TypeInfo>>();
 
             assembly.Foreach_Type(typeInfo =>
             {

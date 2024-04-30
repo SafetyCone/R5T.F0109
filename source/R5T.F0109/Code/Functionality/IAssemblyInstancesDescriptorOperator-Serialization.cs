@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 
 using R5T.T0132;
 using R5T.T0170.Extensions;
@@ -15,6 +16,17 @@ namespace R5T.F0109
 {
     public partial interface IAssemblyInstancesDescriptorOperator : IFunctionalityMarker
     {
+        public async Task<DeserializedType> Deserialize(string instancesJsonFilePath)
+        {
+            var serializedType = await Instances.JsonOperator.Deserialize<SerializedType>(instancesJsonFilePath);
+
+            var output = serializedType.ToDeserializedType();
+            return output;
+        }
+
+        public Task<DeserializedType> Deserialize(IJsonFilePath instancesFilePath)
+            => this.Deserialize(instancesFilePath.Value);
+
         public DeserializedType Deserialize_Synchronous(
             IJsonFilePath jsonFilePath)
         {
