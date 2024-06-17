@@ -36,7 +36,7 @@ namespace R5T.F0109
             // All marker attributes have a parameter to indicated that even though they are applied to a type, the type they are applied to is NOT to be included.
             if (hasAttributeOfType.Result?.ConstructorArguments.Any() ?? false)
             {
-                // The first contructor argument is always used, it might be named or not, and this handles named arguments.
+                // The first constructor argument is always used, it might be named or not, and this handles named arguments.
                 var constructorArgument = hasAttributeOfType.Result.ConstructorArguments.FirstOrDefault();
 
                 // The value is always an "is X", so if false, we don't include the type.
