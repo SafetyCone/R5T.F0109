@@ -18,10 +18,10 @@ namespace R5T.F0109
             var typeIsObsolete = Instances.TypeOperator.IsObsolete(typeInfo);
 
             var output = Instances.ReflectionOperator.Get_Methods(typeInfo)
-                .Where(Instances.ReflectionOperator.IsFunctionMethod)
+                .Where(Instances.ReflectionOperator.Is_FunctionMethod)
                 .Select(methodInfo =>
                 {
-                    var methodIsObsolete = Instances.MethodOperator.IsObsolete(methodInfo);
+                    var methodIsObsolete = Instances.MethodOperator.Is_Obsolete(methodInfo);
 
                     var isObsolete = typeIsObsolete || methodIsObsolete;
 
@@ -77,7 +77,7 @@ namespace R5T.F0109
             var typeIsObsolete = Instances.TypeOperator.IsObsolete(typeInfo);
 
             var output = Instances.ReflectionOperator.Get_Properties(typeInfo)
-                .Where(Instances.ReflectionOperator.IsValueProperty)
+                .Where(Instances.ReflectionOperator.Is_ValueProperty)
                 .Select(propertyInfo =>
                 {
                     var propertyIsObsolete = Instances.PropertyOperator.IsObsolete(propertyInfo);
@@ -107,10 +107,10 @@ namespace R5T.F0109
             var typeIsObsolete = Instances.TypeOperator.IsObsolete(typeInfo);
 
             var output = Instances.ReflectionOperator.Get_Methods(typeInfo)
-                .Where(Instances.ReflectionOperator.IsFunctionMethod)
+                .Where(Instances.ReflectionOperator.Is_FunctionMethod)
                 .Select(methodInfo =>
                 {
-                    var methodIsObsolete = Instances.MethodOperator.IsObsolete(methodInfo);
+                    var methodIsObsolete = Instances.MethodOperator.Is_Obsolete(methodInfo);
 
                     var isObsolete = typeIsObsolete || methodIsObsolete;
 
